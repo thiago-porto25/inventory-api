@@ -12,4 +12,4 @@ itemSchema.virtual('url', function () {
   return `/items/${this._id}`;
 });
 
-export default model('item', itemSchema);
+module.exports = model('item', itemSchema, 'item');
