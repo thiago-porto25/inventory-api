@@ -9,7 +9,7 @@ const itemSchema = new Schema({
 });
 
 itemSchema.virtual('url', function () {
-  return `/items/${this._id}`;
+  return `/item/${this._id}`;
 });
 
 module.exports = model('item', itemSchema, 'item');
