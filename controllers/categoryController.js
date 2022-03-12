@@ -1,12 +1,10 @@
 const Category = require('../models/category');
-const Item = require('../models/item');
 
 const { body, validationResult } = require('express-validator');
 
 exports.getAllCategories = async (req, res, next) => {
   try {
     const categories = await Category.find();
-    console.log(categories);
     res.json({ categories });
   } catch (error) {
     next(error);
@@ -16,7 +14,8 @@ exports.getAllCategories = async (req, res, next) => {
 exports.getCategory = async (req, res, next) => {
   try {
     const category = await Category.find({ name: req.params.name }).populate(
-      'items'
+      'items',
+      { category: 0, __v: 0 }
     );
     res.json({ category });
   } catch (error) {
@@ -34,14 +33,14 @@ exports.createCategory = [
   },
   body('name')
     .trim()
-    .isLength({ min: 1 })
+    .notEmpty()
     .escape()
     .withMessage('Category name must be specified.')
     .isAlphanumeric()
     .withMessage('Category name has non-alphanumeric characters.'),
   body('description')
     .trim()
-    .isLength({ min: 1 })
+    .notEmpty()
     .escape()
     .withMessage('Category description must be specified.'),
   body('items.*').escape(),
@@ -75,14 +74,14 @@ exports.updateCategory = [
   },
   body('name')
     .trim()
-    .isLength({ min: 1 })
+    .notEmpty()
     .escape()
     .withMessage('Category name must be specified.')
     .isAlphanumeric()
     .withMessage('Category name has non-alphanumeric characters.'),
   body('description')
     .trim()
-    .isLength({ min: 1 })
+    .notEmpty()
     .escape()
     .withMessage('Category description must be specified.'),
   body('items.*').escape(),
@@ -119,12 +118,12 @@ exports.deleteCategory = async (req, res, next) => {
 
     if (items.length) {
       return res
-        .status(500)
+        .status(400)
         .send('You must delete all items in a Category before deleting it!');
     }
 
     await Category.deleteOne({ name: req.body.name });
-    res.json({ message: 'Category deleted successfully!' });
+    res.status(204).end();
   } catch (error) {
     next(error);
   }
